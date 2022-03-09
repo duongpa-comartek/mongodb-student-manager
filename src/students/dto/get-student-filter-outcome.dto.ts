@@ -1,14 +1,13 @@
 import { IsEnum, IsNumberString, IsOptional, Max, Min } from "class-validator";
 
-export type TypeOutcomes = "Good" | "Average" | "Bad";
-
-export class GetStudentsFilterOutcome {
+export class FilterOutcomeDto {
+    @IsOptional()
     @IsEnum({
-        GOOD: 'Good',
-        AVERAGE: 'Average',
-        BAD: 'Bad',
+        GOOD: 'GOOD',
+        AVERAGE: 'AVG',
+        BAD: 'BAD',
     })
-    readonly kindof: TypeOutcomes;
+    readonly grading: string;
 
     @IsNumberString()
     @IsOptional()

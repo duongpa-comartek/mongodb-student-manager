@@ -4,7 +4,7 @@ import { Model, Connection } from 'mongoose';
 import { ClassesService } from 'src/classes/classes.service';
 import { Class, ClassSchema } from 'src/classes/schemas/class.schema';
 import { Score } from 'src/scores/schemas/score.schema';
-import { CreateStudentDto, UpdateStudentDto } from './dto';
+import { CreateStudentDto, UpdateStudentDto, FilterOutcomeDto } from './dto';
 import { Student, StudentDocument } from './schemas/student.schema';
 
 @Injectable()
@@ -77,5 +77,9 @@ export class StudentsService {
         const student = await this.studentModel.findById(id).populate('scores').exec();
         const arrScore = student.scores;
         return arrScore ? arrScore.reduce((result, { score }) => result + score, 0) / arrScore.length : 0;
+    }
+
+    async getByOutCome() {
+        return await this.studentModel.find({ scores: { $gte: 8.5 } }).exec();
     }
 }

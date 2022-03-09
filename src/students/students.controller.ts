@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, forwardRef, Get, HttpException, HttpStatus, Inject, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, forwardRef, Get, HttpException, HttpStatus, Inject, Param, Patch, Post, Query } from '@nestjs/common';
+import { query } from 'express';
 import { ClassesService } from 'src/classes/classes.service';
 import { ScoresService } from 'src/scores/scores.service';
-import { CreateStudentDto, UpdateStudentDto } from './dto/index';
+import { CreateStudentDto, UpdateStudentDto, FilterOutcomeDto } from './dto/index';
 import { StudentsService } from './students.service';
 
 @Controller('students')
@@ -62,4 +63,8 @@ export class StudentsController {
         return await this.studentsService.delete(id);;
     }
 
+    @Get('outcome')
+    async getByOutcome(@Query() query: FilterOutcomeDto) {
+        return await this.studentsService.getByOutCome(query);
+    }
 }
