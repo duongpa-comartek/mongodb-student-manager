@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, forwardRef, Get, HttpException, HttpStatus, Inject, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, forwardRef, Get, HttpException, HttpStatus, Inject, Param, Patch, Post, Query } from '@nestjs/common';
 import { ClassesService } from 'src/classes/classes.service';
 import { StudentsService } from 'src/students/students.service';
 import { SubjectsService } from 'src/subjects/subjects.service';

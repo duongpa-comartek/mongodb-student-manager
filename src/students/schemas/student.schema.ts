@@ -30,4 +30,17 @@ export class Student {
     scores: Score[];
 }
 
-export const StudentSchema = SchemaFactory.createForClass(Student);
+const StudentSchema = SchemaFactory.createForClass(Student);
+
+StudentSchema.methods.getAvgScore = function () {
+    return this.scores ? this.scores.reduce((result, { score }) => result + score, 0) / this.scores.length : 0;
+};
+
+StudentSchema.methods.getOutcome = function () {
+    const avg = this.scores ? this.scores.reduce((result, { score }) => result + score, 0) / this.scores.length : 0;
+    if (avg >= 8) return 'GOOD';
+    else if (avg > 5 && avg < 8) return 'AVG';
+    else return 'BAD';
+};
+
+export { StudentSchema };
