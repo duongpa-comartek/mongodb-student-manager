@@ -1,0 +1,46 @@
+import { Body, Controller, Delete, forwardRef, Get, Inject, Param, Post, Patch, Query, HttpException, HttpStatus } from '@nestjs/common';
+import { StudentsService } from 'src/students/students.service';
+import { ClassesService } from './classes.service';
+import { CreateClassDto, UpdateClassDto } from './dto/index';
+
+@Controller('classes')
+export class ClassesController {
+    constructor(
+        private readonly classesService: ClassesService,
+
+        @Inject(forwardRef(() => StudentsService))
+        private readonly studentService: StudentsService
+    ) { }
+
+    @Get()
+    async index() {
+        return await this.classesService.findAll();
+    }
+
+    @Get(':id')
+    async findById(@Param('id') id: string) {
+        return await this.classesService.findOneById(id);
+    }
+
+    @Post()
+    async create(@Body() create: CreateClassDto) {
+        return await this.classesService.create(create);
+    }
+
+    @Patch(':id')
+    async update(@Param('id') id: string, @Body() update: UpdateClassDto) {
+        return await this.classesService.update(id, update);
+    }
+
+    @Delete(':id')
+    async delete(@Param('id') id: string) {
+        const _class = await this.classesService.findOneById(id);
+        if (_class.students.length) {
+            throw new HttpException({
+                status: HttpStatus.BAD_REQUEST,
+                error: `Bad Request: Class has students!`,
+            }, HttpStatus.BAD_REQUEST);
+        }
+        return await this.classesService.delete(id);
+    }
+}
