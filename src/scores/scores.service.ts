@@ -31,10 +31,8 @@ export class ScoresService {
 
     async create(create: CreateScoreDto): Promise<Score> {
         const result = await new this.scoreModel(create).save();
-        const student = await this.studentsService.findOneById(create.student);
-        const subject = await this.subjectsService.findOneById(create.subject);
-        await this.studentsService.update(create.student, { scores: [...student.scores, result] });
-        await this.subjectsService.update(create.subject, { scores: [...subject.scores, result] });
+        await this.studentsService.updatePushOneScore(create.student, result);
+        await this.subjectsService.updatePushOneScore(create.subject, result);
         return result;
     }
 
@@ -46,18 +44,8 @@ export class ScoresService {
         const score = await this.scoreModel.findById(id).populate('student').populate('subject').exec();
         const student = score.student;
         const subject = score.subject;
-        const arrScoreOfStudent = student.scores as Score[];
-        const arrScoreOfSubject = subject.scores as Score[];
-        const indexStudent = arrScoreOfStudent.indexOf(score);
-        const indexSubject = arrScoreOfSubject.indexOf(score);
-        arrScoreOfStudent.splice(indexStudent, 1);
-        arrScoreOfSubject.splice(indexSubject, 1);
-        await this.studentsService.update(String(student._id), {
-            scores: arrScoreOfStudent
-        });
-        await this.subjectsService.update(String(subject._id), {
-            scores: arrScoreOfSubject
-        });
+        await this.studentsService.updateDeleteOneScore(String(student._id), String(score._id));
+        await this.subjectsService.updateDeleteOneScore(String(subject._id), String(score._id));
         return await this.scoreModel.findByIdAndDelete(id).exec();
     }
 }

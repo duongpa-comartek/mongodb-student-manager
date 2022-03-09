@@ -28,6 +28,24 @@ export class ClassesService {
         return await this.classModel.findByIdAndUpdate(id, update).populate('students').exec();
     }
 
+    async updatePushOneStudent(id: string, student: Student) {
+        const _class = await this.classModel.findById(id).exec();
+        return await this.classModel.findByIdAndUpdate(id, {
+            $push: { students: student },
+            $set: { totalMember: ++_class.totalMember }
+        });
+    }
+
+    async updateDeleteOneStudent(id: string, studentId: string) {
+        const _class = await this.classModel.findById(id).exec();
+        return await this.classModel.findByIdAndUpdate(id, {
+            $pullAll: {
+                students: [{ _id: studentId }]
+            },
+            $set: { totalMember: --_class.totalMember }
+        });
+    }
+
     async delete(id: string): Promise<Class> {
         return await this.classModel.findByIdAndDelete(id).exec();
     }

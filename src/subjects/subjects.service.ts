@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Score } from 'src/scores/schemas/score.schema';
 import { CreateSubjectDto, UpdateSubjectDto } from './dto';
 import { Subject, SubjectDocument } from './schemas/subject.schema';
 
@@ -25,6 +26,20 @@ export class SubjectsService {
 
     async update(id: string, update: UpdateSubjectDto): Promise<Subject> {
         return await this.subjectModel.findByIdAndUpdate(id, update).exec();
+    }
+
+    async updatePushOneScore(id: string, score: Score) {
+        return await this.subjectModel.findByIdAndUpdate(id, {
+            $push: { scores: score }
+        })
+    }
+
+    async updateDeleteOneScore(id: string, scoreId: string) {
+        return await this.subjectModel.findByIdAndUpdate(id, {
+            $pullAll: {
+                scores: [{ _id: scoreId }]
+            }
+        });
     }
 
     async delete(id: string): Promise<Subject> {
