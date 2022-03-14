@@ -1,7 +1,11 @@
-import { IsNumber, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { IsNumber, IsOptional, IsString, Max, MaxLength, Min, MinLength, IsMongoId } from 'class-validator';
+import { ObjectId } from 'mongoose';
 import { Student } from 'src/students/schemas/student.schema';
 
 export class UpdateClassDto {
+    // @IsMongoId()
+    // readonly id: ObjectId;
+
     @IsString()
     @IsOptional()
     @MinLength(1)

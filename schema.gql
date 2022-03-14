@@ -1,0 +1,151 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Class {
+  _id: ID!
+  name: String!
+  students: [Student!]!
+  teacherName: String!
+  totalMember: Float!
+}
+
+input CreateClassInput {
+  name: String!
+  teacherName: String!
+}
+
+input CreateScoreInput {
+  score: Float!
+  student: String!
+  subject: String!
+}
+
+input CreateStudentInput {
+  class: String!
+  dob: DateTime!
+  email: String!
+  gender: String!
+  name: String!
+}
+
+input CreateSubjectInput {
+  name: String!
+  type: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input DeleteClassInput {
+  _id: ID!
+}
+
+input DeleteScoreInput {
+  _id: String!
+}
+
+input DeleteStudentInput {
+  _id: ID!
+}
+
+input DeleteSubjectInput {
+  _id: String!
+}
+
+input FindClassInput {
+  _id: ID
+  name: String
+  teacherName: String
+}
+
+input FindScoreInput {
+  _id: String!
+}
+
+input FindStudentInput {
+  _id: ID!
+}
+
+input FindSubjectInput {
+  _id: String!
+}
+
+type Mutation {
+  addClass(createClassInput: CreateClassInput!): Class!
+  addScore(createScoreInput: CreateScoreInput!): Score!
+  addStudent(createStudentInput: CreateStudentInput!): Student!
+  addSubject(createSubjectInput: CreateSubjectInput!): Subject!
+  deleteClass(deleteClassInput: DeleteClassInput!): Class!
+  deleteScore(deleteScoreInput: DeleteScoreInput!): Score!
+  deleteStudent(deleteStudentInput: DeleteStudentInput!): Student!
+  deleteSubject(deleteSubjectInput: DeleteSubjectInput!): Subject!
+  updateClass(updateClassInput: UpdateClassInput!): Class!
+  updateScore(updateScoreInput: UpdateScoreInput!): Score!
+  updateStudent(updateStudentInput: UpdateStudentInput!): Student!
+  updateSubject(updateSubjectInput: UpdateSubjectInput!): Subject!
+}
+
+type Query {
+  class(findClassInput: FindClassInput!): [Class!]!
+  classes: [Class!]!
+  findbyid(id: ID!): Class!
+  score(findScoreInput: FindScoreInput!): Score!
+  scores: [Score!]!
+  student(findStudentInput: FindStudentInput!): Student!
+  students: [Student!]!
+  subject(findSubjectInput: FindSubjectInput!): Subject!
+  subjects: [Subject!]!
+}
+
+type Score {
+  _id: ID!
+  score: Float!
+  student: Student!
+  subject: Subject!
+}
+
+type Student {
+  _id: ID!
+  class: Class!
+  dob: DateTime!
+  email: String!
+  gender: String!
+  name: String!
+  scores: [Score!]!
+}
+
+type Subject {
+  _id: ID!
+  name: String!
+  scores: [Score!]!
+  type: String!
+}
+
+input UpdateClassInput {
+  _id: ID!
+  name: String
+  teacherName: String
+}
+
+input UpdateScoreInput {
+  _id: String!
+  score: Float
+}
+
+input UpdateStudentInput {
+  _id: String!
+  class: String
+  dob: DateTime
+  email: String
+  gender: String
+  name: String
+}
+
+input UpdateSubjectInput {
+  _id: String!
+  name: String
+  type: String
+}

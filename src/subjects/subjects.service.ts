@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { Score } from 'src/scores/schemas/score.schema';
 import { CreateSubjectDto, UpdateSubjectDto } from './dto';
 import { Subject, SubjectDocument } from './schemas/subject.schema';
@@ -16,7 +16,7 @@ export class SubjectsService {
         return await this.subjectModel.find().exec();
     }
 
-    async findOneById(id: string): Promise<Subject> {
+    async findOneById(id: string | ObjectId) {
         return await this.subjectModel.findById(id).exec();
     }
 
@@ -24,7 +24,7 @@ export class SubjectsService {
         return await new this.subjectModel(create).save();
     }
 
-    async update(id: string, update: UpdateSubjectDto): Promise<Subject> {
+    async update(id: string | ObjectId, update: UpdateSubjectDto): Promise<Subject> {
         return await this.subjectModel.findByIdAndUpdate(id, update).exec();
     }
 
@@ -42,7 +42,7 @@ export class SubjectsService {
         });
     }
 
-    async delete(id: string): Promise<Subject> {
+    async delete(id: string | ObjectId): Promise<Subject> {
         return await this.subjectModel.findByIdAndDelete(id).exec();
     }
 }

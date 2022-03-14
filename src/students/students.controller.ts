@@ -9,9 +9,7 @@ import { StudentsService } from './students.service';
 export class StudentsController {
     constructor(
         private readonly studentsService: StudentsService,
-        @Inject(forwardRef(() => ClassesService))
         private readonly classService: ClassesService,
-        @Inject(forwardRef(() => ScoresService))
         private readonly scoresService: ScoresService
     ) { }
 
@@ -61,10 +59,5 @@ export class StudentsController {
             }, HttpStatus.BAD_REQUEST);
         }
         return await this.studentsService.delete(id);;
-    }
-
-    @Get('outcome')
-    async getByOutcome(@Query() query: FilterOutcomeDto) {
-        return await this.studentsService.getByOutCome(query);
     }
 }

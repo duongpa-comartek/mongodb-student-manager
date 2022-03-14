@@ -2,6 +2,7 @@ import { Body, Controller, Delete, forwardRef, Get, Inject, Param, Post, Patch, 
 import { StudentsService } from 'src/students/students.service';
 import { ClassesService } from './classes.service';
 import { CreateClassDto, UpdateClassDto } from './dto/index';
+import { ObjectId } from 'mongoose';
 
 @Controller('classes')
 export class ClassesController {
@@ -18,7 +19,7 @@ export class ClassesController {
     }
 
     @Get(':id')
-    async findById(@Param('id') id: string) {
+    async findById(@Param('id') id: string | ObjectId) {
         return await this.classesService.findOneById(id);
     }
 
@@ -33,7 +34,7 @@ export class ClassesController {
     }
 
     @Delete(':id')
-    async delete(@Param('id') id: string) {
+    async delete(@Param('id') id: string | ObjectId) {
         const _class = await this.classesService.findOneById(id);
         if (_class.students.length) {
             throw new HttpException({

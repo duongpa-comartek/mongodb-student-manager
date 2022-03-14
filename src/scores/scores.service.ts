@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Score, ScoreDocument } from './schemas/score.schema';
-import { Model } from 'mongoose';
-import { CreateScoreDto, UpdateScoreDto } from './dto/index';
+import { Score, ScoreDocument, ScoreResult } from './schemas/score.schema';
+import { Model, ObjectId } from 'mongoose';
+import { CreateScoreDto, UpdateScoreDto, CheckExistScoreDto } from './dto/index';
 import { Student } from 'src/students/schemas/student.schema';
 import { Subject } from 'src/subjects/schemas/subject.schema';
 import { StudentsService } from 'src/students/students.service';
@@ -21,8 +21,26 @@ export class ScoresService {
         return await this.scoreModel.find().exec();
     }
 
-    async findOneById(id: string): Promise<Score> {
-        return await this.scoreModel.findById(id).populate('student').populate('subject').exec();
+    async findByStudent(_id: string | ObjectId) {
+        const list = await this.scoreModel.find({ student: _id }).exec();
+        const outcome: ScoreResult = {
+            key: String(_id),
+            result: list
+        }
+        return outcome;
+    }
+
+    async findBySubject(_id: string | ObjectId) {
+        const list = await this.scoreModel.find({ subject: _id }).exec();
+        const outcome: ScoreResult = {
+            key: String(_id),
+            result: list
+        }
+        return outcome;
+    }
+
+    async findOneById(id: string | ObjectId): Promise<Score> {
+        return await this.scoreModel.findById(id).exec();
     }
 
     async findOneByStudentAndSubject(student: Student, subject: Subject): Promise<Score> {
@@ -47,5 +65,10 @@ export class ScoresService {
         await this.studentsService.updateDeleteOneScore(String(student._id), String(score._id));
         await this.subjectsService.updateDeleteOneScore(String(subject._id), String(score._id));
         return await this.scoreModel.findByIdAndDelete(id).exec();
+    }
+
+    async checkExist(checkExistScore: CheckExistScoreDto) {
+        const score = await this.scoreModel.findOne(checkExistScore).exec();
+        return Boolean(score);
     }
 }

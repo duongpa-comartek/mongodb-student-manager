@@ -1,6 +1,7 @@
-import { IsString } from 'class-validator';
+import { IsMongoId } from 'class-validator';
+import { ObjectId } from 'mongoose';
 
 export class DeleteClassDto {
-    @IsString()
-    readonly id: string;
+    @IsMongoId()
+    readonly id: string | ObjectId;
 }
