@@ -1,6 +1,6 @@
 import { Expose, Type, TypeOptions } from 'class-transformer';
-import { IsEnum, IsNumber, IsString, IsDate, IsEmail, Length, IsObject } from 'class-validator';
-import mongoose from 'mongoose';
+import { IsEnum, IsNumber, IsString, IsDate, IsEmail, Length, IsObject, IsMongoId } from 'class-validator';
+import { ObjectId } from 'mongoose';
 import { Class } from 'src/classes/schemas/class.schema';
 
 export class CreateStudentDto {
@@ -22,6 +22,6 @@ export class CreateStudentDto {
     @IsEmail()
     readonly email: string;
 
-    @IsString()
+    @IsMongoId()
     readonly class: string;
 }
