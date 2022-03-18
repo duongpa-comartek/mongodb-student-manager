@@ -9,6 +9,9 @@ import { Score, ScoreSchema } from './schemas/score.schema';
 import { ScoresResolver } from './scores.resolver';
 import { Student, StudentSchema } from 'src/students/schemas/student.schema';
 import { Subject, SubjectSchema } from 'src/subjects/schemas/subject.schema';
+import { MailModule } from 'src/mail/mail.module';
+import { ExcelModule } from 'src/excel/excel.module';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -17,9 +20,14 @@ import { Subject, SubjectSchema } from 'src/subjects/schemas/subject.schema';
       { name: Student.name, schema: StudentSchema },
       { name: Subject.name, schema: SubjectSchema },
     ]),
+    BullModule.registerQueue({
+      name: 'score',
+    }),
     forwardRef(() => StudentsModule),
     forwardRef(() => SubjectsModule),
     forwardRef(() => ClassesModule),
+    forwardRef(() => MailModule),
+    forwardRef(() => ExcelModule)
   ],
   controllers: [ScoresController],
   providers: [ScoresService, ScoresResolver],

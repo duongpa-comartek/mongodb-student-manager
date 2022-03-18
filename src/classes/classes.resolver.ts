@@ -4,7 +4,7 @@ import { ClassesService } from './classes.service';
 import { Class } from './schemas/class.schema';
 import { StudentsService } from 'src/students/students.service';
 import { Student, StudentResult } from 'src/students/schemas/student.schema';
-import { CreateClassInput, UpdateClassInput, FindClassInput, DeleteClassInput } from './input/index';
+import { CreateClassInput, UpdateClassInput, FindClassArgs, DeleteClassInput } from './input/index';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import DataLoader from 'dataloader';
 
@@ -20,14 +20,19 @@ export class ClassesResolver {
         return this.classesService.findAll();
     }
 
-    @Query(returns => Class)
-    async findbyid(@Args('id', { type: () => ID }) id: ObjectId) {
-        return this.classesService.findOneById(id);
+    @ResolveField('students', () => [Student])
+    async getStudents(
+        @Parent() parent: Class,
+        @Context() {
+            studentsLoaderByClass
+        }: { studentsLoaderByClass: DataLoader<ObjectId, StudentResult> }
+    ) {
+        return (await studentsLoaderByClass.load(parent._id)).result;
     }
 
     @Query(() => [Class])
-    async class(@Args('findClassInput') { _id, name, teacherName }: FindClassInput) {
-        return this.classesService.findByName(name);
+    async searchClass(@Args() searchClass: FindClassArgs) {
+        return this.classesService.search(searchClass);
     }
 
     @Mutation(() => Class)
@@ -51,15 +56,5 @@ export class ClassesResolver {
             }, HttpStatus.BAD_REQUEST);
         }
         return this.classesService.delete(_id);
-    }
-
-    @ResolveField('students', () => [Student])
-    async getStudents(
-        @Parent() parent: Class,
-        @Context() {
-            studentsLoaderByClass
-        }: { studentsLoaderByClass: DataLoader<ObjectId, StudentResult> }
-    ) {
-        return (await studentsLoaderByClass.load(parent._id)).result;
     }
 }

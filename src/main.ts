@@ -1,10 +1,24 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { ExpressAdapter } from '@bull-board/express';
+import { createBullBoard } from '@bull-board/api';
+import { BullAdapter } from '@bull-board/api/bullAdapter';
+import * as Queue from 'bull';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // const serverAdapter = new ExpressAdapter();
+  // serverAdapter.setBasePath('/admin/queues');
+  // const queue = new Queue('mail-queue')
+  // createBullBoard({
+  //   queues: [
+  //     new BullAdapter(queue),
+  //   ],
+  //   serverAdapter
+  // });
+  // app.use('/admin/queues', serverAdapter.getRouter());
 
   app.useGlobalPipes(new ValidationPipe({
     transform: true,
@@ -14,14 +28,7 @@ async function bootstrap() {
       process.env.NODE_ENV === 'PRODUCTION' ? true : false
   }));
 
-  const config = new DocumentBuilder()
-    .setTitle('Student manager')
-    .setDescription('Student manager API documentation')
-    .setVersion('1.0')
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
-
   await app.listen(3000);
 }
+
 bootstrap();

@@ -4,18 +4,25 @@ import { Student } from 'src/students/schemas/student.schema';
 import { StudentsService } from 'src/students/students.service';
 import { SubjectsService } from 'src/subjects/subjects.service';
 import { FindScoreInput, CreateScoreInput, UpdateScoreInput, DeleteScoreInput } from './input/index';
-import { Score } from './schemas/score.schema';
+import { Score, ScoreDocument } from './schemas/score.schema';
 import { ScoresService } from './scores.service';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { ObjectId } from 'mongoose';
+import * as XlsxTemplate from 'xlsx-template';
+import * as fs from 'fs';
+import { MailService } from 'src/mail/mail.service';
+import { ExcelService } from 'src/excel/excel.service';
+import Bull from 'bull';
 
 @Resolver(of => Score)
 export class ScoresResolver {
     constructor(
         private readonly scoresService: ScoresService,
         private readonly studentsService: StudentsService,
-        private readonly subjectsService: SubjectsService
+        private readonly subjectsService: SubjectsService,
+        private readonly mailService: MailService,
+        private readonly excelService: ExcelService
     ) { }
 
     @Query(() => [Score])
@@ -45,7 +52,7 @@ export class ScoresResolver {
     }
 
     @Mutation(() => Score)
-    async addScore(@Args('createScoreInput') createScoreInput: CreateScoreInput) {
+    async addScore(@Args('createScoreInput') { dateToSendMail, hourToSendMail, ...createScoreInput }: CreateScoreInput) {
         //Kiểm tra xem học sinh và môn học có tồn tại không
         const student = await this.studentsService.findOneById(createScoreInput.student);
         const subject = await this.subjectsService.findOneById(createScoreInput.subject);
@@ -64,7 +71,9 @@ export class ScoresResolver {
                 error: `Bad Request: Score already exists!`,
             }, HttpStatus.BAD_REQUEST);
         }
-        return this.scoresService.create(createScoreInput);
+        const result = await this.scoresService.create(createScoreInput)
+        if (result) await this.afterAddScore(result, student, subject, dateToSendMail, hourToSendMail);
+        return result;
     }
 
     @Mutation(() => Score)
@@ -76,5 +85,48 @@ export class ScoresResolver {
     @Mutation(() => Score)
     async deleteScore(@Args('deleteScoreInput') { _id }: DeleteScoreInput) {
         return this.scoresService.delete(_id);
+    }
+
+    async afterAddScore(
+        insertedScore: Score,
+        student: Student,
+        subject: Subject,
+        dateToSendMail: Date,
+        hourToSendMail: Boolean
+    ) {
+        const _class = await this.studentsService.findClassByStudent(student._id);
+        const dataFile = await this.excelService.createExcelAddScore({
+            class: _class.name,
+            student: student,
+            subject: subject.name,
+            score: insertedScore.score
+        });
+        const start = new Date();
+
+        //Thêm delay nếu nhập
+        let jobOptions = {} as Bull.JobOptions;
+        if (dateToSendMail) {
+            console.log(dateToSendMail);
+            jobOptions = {
+                ...jobOptions,
+                delay: dateToSendMail.getMilliseconds() - Date.now(),
+            };
+        }
+        if (hourToSendMail) {
+            jobOptions = {
+                ...jobOptions,
+                delay: 60 * 60 * 1000,
+            };
+        }
+
+        this.mailService.sendEmailWithQueue({
+            name: student.name,
+            email: student.email,
+            subject: subject.name,
+            score: insertedScore.score,
+            data: dataFile,
+            jobOptions
+        });
+        return insertedScore;
     }
 }   

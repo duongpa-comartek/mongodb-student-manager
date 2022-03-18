@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Model, Connection } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { ClassesService } from 'src/classes/classes.service';
-import { Class, ClassSchema } from 'src/classes/schemas/class.schema';
 import { Score } from 'src/scores/schemas/score.schema';
 import { CreateStudentDto, UpdateStudentDto, FilterOutcomeDto, CheckExistStudentDto } from './dto';
 import { Student, StudentDocument, StudentResult } from './schemas/student.schema';
-import { ObjectId } from 'mongoose';
-import { CreateStudentInput } from './input';
+import { CreateStudentInput, FindStudentArgs } from './input';
 
 @Injectable()
 export class StudentsService {
@@ -27,6 +25,11 @@ export class StudentsService {
 
     async findStudentInClass(id: string | ObjectId) {
         return await this.studentModel.find({ class: id }).exec();
+    }
+
+    async findClassByStudent(_id: string | ObjectId) {
+        const result = await this.studentModel.findById(_id).populate('class').lean().exec();
+        return result.class;
     }
 
     async create(create: CreateStudentInput): Promise<Student> {
@@ -99,5 +102,20 @@ export class StudentsService {
             result: listStudent
         }
         return outcome;
+    }
+
+    async search({ _id, name, dob, email, gender, class: _class }: FindStudentArgs) {
+        if (_id) {
+            return await this.studentModel.findById(_id).exec();
+        }
+        const condition = [];
+        if (name) condition.push({ name: name });
+        if (dob) condition.push({ dob: dob });
+        if (email) condition.push({ email: email });
+        if (gender) condition.push({ gender: gender });
+        if (_class) condition.push({ class: _class });
+        return await this.studentModel.find({
+            $or: condition
+        }).lean().exec();
     }
 }

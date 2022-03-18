@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { forwardRef, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { StudentsModule } from 'src/students/students.module';
 import { ClassesController } from './classes.controller';
@@ -20,4 +20,5 @@ import { Student, StudentSchema } from 'src/students/schemas/student.schema';
   exports: [ClassesService]
 })
 
-export class ClassesModule { }
+export class ClassesModule {
+}
