@@ -16,6 +16,8 @@ input CreateClassInput {
 }
 
 input CreateScoreInput {
+  dateToSendMail: DateTime
+  hourToSendMail: Boolean
   score: Float!
   student: String!
   subject: String!
@@ -55,18 +57,8 @@ input DeleteSubjectInput {
   _id: String!
 }
 
-input FindClassInput {
-  _id: ID
-  name: String
-  teacherName: String
-}
-
 input FindScoreInput {
   _id: String!
-}
-
-input FindStudentInput {
-  _id: ID!
 }
 
 input FindSubjectInput {
@@ -89,12 +81,11 @@ type Mutation {
 }
 
 type Query {
-  class(findClassInput: FindClassInput!): [Class!]!
   classes: [Class!]!
-  findbyid(id: ID!): Class!
   score(findScoreInput: FindScoreInput!): Score!
   scores: [Score!]!
-  student(findStudentInput: FindStudentInput!): Student!
+  searchClass(_id: ID, name: String, teacherName: String, totalMenber: Float): [Class!]!
+  searchStudent(_id: ID, class: String, dob: DateTime, email: String, gender: String, name: String): Student!
   students: [Student!]!
   subject(findSubjectInput: FindSubjectInput!): Subject!
   subjects: [Subject!]!

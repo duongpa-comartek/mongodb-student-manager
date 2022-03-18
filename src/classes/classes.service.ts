@@ -5,7 +5,7 @@ import { Student } from 'src/students/schemas/student.schema';
 import { UpdateClassDto } from './dto/index';
 import { Class, ClassDocument, ClassSchema } from './schemas/class.schema';
 import { idText } from '@ts-morph/common/lib/typescript';
-import { CreateClassInput, UpdateClassInput, FindClassInput } from './input/index';
+import { CreateClassInput, UpdateClassInput, FindClassArgs } from './input/index';
 
 @Injectable()
 export class ClassesService {
@@ -20,10 +20,6 @@ export class ClassesService {
 
     async findOneById(id: string | ObjectId): Promise<Class> {
         return await this.classModel.findById(id).exec();
-    }
-
-    async findByName(name: string) {
-        return await this.classModel.find({ name: name }).exec();
     }
 
     async create(create: CreateClassInput) {
@@ -60,7 +56,16 @@ export class ClassesService {
         return await this.classModel.exists({ _id: _id });
     }
 
-    async search({ _id, name, teacherName }: FindClassInput) {
-        return await this.classModel.find({ _id: _id, name: name, teacherName: teacherName }).exec();
+    async search({ _id, name, teacherName, totalMenber }: FindClassArgs) {
+        if (_id) {
+            return await this.classModel.findById(_id).lean().exec();
+        }
+        const condition = [];
+        if (name) condition.push({ name: name });
+        if (teacherName) condition.push({ teacherName: teacherName });
+        if (totalMenber) condition.push({ totalMenber: totalMenber });
+        return await this.classModel.find({
+            $or: condition
+        }).lean().exec();
     }
 }

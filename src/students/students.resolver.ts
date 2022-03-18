@@ -5,10 +5,11 @@ import { Score, ScoreResult } from 'src/scores/schemas/score.schema';
 import { ScoresService } from 'src/scores/scores.service';
 import { Student } from './schemas/student.schema';
 import { StudentsService } from './students.service';
-import { FindStudentInput, CreateStudentInput, UpdateStudentInput, DeleteStudentInput } from './input/index'
+import { FindStudentArgs, CreateStudentInput, UpdateStudentInput, DeleteStudentInput } from './input/index'
 import { HttpException, HttpStatus } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { ObjectId } from 'mongoose';
+import { read } from 'fs';
 
 @Resolver(of => Student)
 export class StudentsResolver {
@@ -40,8 +41,8 @@ export class StudentsResolver {
     }
 
     @Query(() => Student)
-    async student(@Args('findStudentInput') { _id }: FindStudentInput) {
-        return this.studentsService.findOneById(_id);
+    async searchStudent(@Args() searchArgs: FindStudentArgs) {
+        return await this.studentsService.search(searchArgs);
     }
 
     @Mutation(() => Student)
@@ -52,7 +53,9 @@ export class StudentsResolver {
                 status: HttpStatus.BAD_REQUEST, error: `Bad Request: Class cannot found!`,
             }, HttpStatus.BAD_REQUEST);
         }
-        return this.studentsService.create(createStudentInput);
+        const result = await this.studentsService.create(createStudentInput);
+        this.classesService.updatePushOneStudent(_class._id, result);
+        return result;
     }
 
     @Mutation(() => Student)

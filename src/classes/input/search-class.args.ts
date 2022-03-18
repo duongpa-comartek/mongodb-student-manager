@@ -1,11 +1,12 @@
-import { Field, InputType, ID } from "@nestjs/graphql";
-import { IsMongoId, IsOptional, IsString, Length, MinLength } from "class-validator";
+import { Field, InputType, ID, ArgsType } from "@nestjs/graphql";
+import { IsMongoId, IsNumber, IsOptional, IsString, Length, MinLength } from "class-validator";
 import { ObjectId } from 'mongoose';
 
-@InputType()
-export class FindClassInput {
+@ArgsType()
+export class FindClassArgs {
     @Field(type => ID, { nullable: true })
     @IsMongoId()
+    @IsOptional()
     _id?: ObjectId;
 
     @Field({ nullable: true })
@@ -19,4 +20,10 @@ export class FindClassInput {
     @Length(1, 50)
     @IsOptional()
     teacherName?: string;
+
+
+    @Field({ nullable: true })
+    @IsNumber()
+    @IsOptional()
+    totalMenber?: number;
 }
